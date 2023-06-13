@@ -1,0 +1,7 @@
+[linode]
+jeffgithire.dev
+
+[linode:vars]
+ansible_user=githire
+ansible_ssh_private_key_file=~/.ssh/personal_rsa
+ansible_sudo_pass=cyberlink
