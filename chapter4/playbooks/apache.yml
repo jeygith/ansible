@@ -1,4 +1,3 @@
-## this is plain text
 ---
 - name: Install Apache
   hosts: all
@@ -7,7 +6,7 @@
   handlers:
     - name: restart apache
       service: 
-        name: httpd
+        name: "{{ apache_service }}"
         state: restarted
     
     - name: restart memcached
@@ -15,6 +14,12 @@
         name: memcached
         state: restarted
 
+  pre_tasks:
+    - name: Load variable files.
+      include_vars: "{{ item }}"
+      with_first_found:
+        - "vars/apache_{{ ansible_os_family }}.yml"
+        - "vars/apache_default.yml"
 
   tasks:
    -  name: Add an environment variable to the remote user's shell.
@@ -27,6 +32,9 @@
    -  name: Get the value of an environment variable.
       shell: 'source ~/.bash_profile && echo $ENV_VAR'
       register: foo
+      become: false
+      args:
+        executable: /bin/bash
 
    -  debug: msg="The variable is {{ foo.stdout }}"
 
@@ -34,25 +42,25 @@
       get_url:
         url: http://ipv4.download.thinkbroadband.com/20MB.zip
         dest: /tmp
-        
+
    -  name: Install Apache
-      yum:
+      package:
         name:
-          - httpd
-          - httpd-devel
+          - "{{ apache_package }}"
+          #- httpd-devel
         state: present
 
    -  name: Copy test config file.
       copy: 
         src: files/test.conf
-        dest: /etc/httpd/conf.d/test.conf
+        dest: "{{apache_config_dir}}/test.conf"
       notify: 
         - restart apache
         - restart memcached
 
    -  name: Make sure Apache is started now and at boot.
       service:
-        name: httpd
+        name: "{{ apache_service }}"
         state: started
         enabled: true
           
