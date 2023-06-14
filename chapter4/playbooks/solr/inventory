@@ -1,2 +1,2 @@
 [solr]
-10.0.0.12 ansible_user=ubuntu
+10.0.0.12 ansible_user=githire
